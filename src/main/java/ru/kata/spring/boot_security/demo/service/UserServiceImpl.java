@@ -1,62 +1,61 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.User;
-
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final UserDao userDao;
+
+    @Autowired
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u", User.class);
-        return query.getResultList();
-
-
+        return userDao.getAllUsers();
     }
 
     @Override
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
-        return entityManager.find(User.class, id);
+        return userDao.getUserById(id);
     }
 
     @Override
     @Transactional
     public void addUser(User user) {
-        entityManager.persist(user);
+        userDao.addUser(user);
     }
 
     @Override
     @Transactional
     public void updateUser(Long id, User updatedUser) {
-        User existingUser = entityManager.find(User.class, id);
+        User existingUser = userDao.getUserById(id);
         if (existingUser != null) {
             existingUser.setFirstName(updatedUser.getFirstName());
             existingUser.setLastName(updatedUser.getLastName());
             existingUser.setEmail(updatedUser.getEmail());
-            entityManager.merge(existingUser);
+            userDao.updateUser(existingUser);
         }
     }
 
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        User user = entityManager.find(User.class, id);
-        if (user != null) {
-            entityManager.remove(user);
-        }
+        userDao.deleteUser(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 }
-
-

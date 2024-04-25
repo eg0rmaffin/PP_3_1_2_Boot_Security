@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.kata.spring.boot_security.demo.service.CustomUserDetailsService;
+import ru.kata.spring.boot_security.demo.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -31,17 +31,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
-                .and()
                 .inMemoryAuthentication()
-                .withUser("admin@example.com")
-                .password(passwordEncoder().encode("admin123"))
-                .roles("ADMIN")
+                .withUser("admin@example.com").password(passwordEncoder().encode("admin123")).roles("ADMIN")
                 .and()
-                .withUser("user@example.com")
-                .password(passwordEncoder().encode("user123"))
-                .roles("USER");
+                .withUser("user@example.com").password(passwordEncoder().encode("user123")).roles("USER");
+
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
     }
 
     @Override
