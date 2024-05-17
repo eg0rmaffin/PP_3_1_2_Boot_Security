@@ -28,18 +28,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("admin@example.com").password(passwordEncoder().encode("admin123")).roles("ADMIN")
-                .and()
-                .withUser("user@example.com").password(passwordEncoder().encode("user123")).roles("USER");
-
-        auth
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
-    }
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .inMemoryAuthentication()
+//                .withUser("admin@example.com").password(passwordEncoder().encode("admin123")).roles("ADMIN")
+//                .and()
+//                .withUser("user@example.com").password(passwordEncoder().encode("user123")).roles("USER");
+//
+//        auth
+//                .userDetailsService(userDetailsService)
+//                .passwordEncoder(passwordEncoder());
+//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

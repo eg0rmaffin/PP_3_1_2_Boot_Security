@@ -14,6 +14,12 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;
     }
 
+    public String getAuthoritiesString(){
+        return user.getRoles().stream()
+                .map(role -> "ROLE_" + role.getName())
+                .collect(Collectors.joining(","));
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
@@ -50,4 +56,6 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

@@ -10,4 +10,6 @@ public interface UserDao {
     void updateUser(User user);
     void deleteUser(Long id);
     User findByEmail(String email);
+
+    boolean isExist(String email);
 }

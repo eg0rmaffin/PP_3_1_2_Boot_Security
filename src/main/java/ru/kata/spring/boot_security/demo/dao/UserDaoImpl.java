@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.dao;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
@@ -46,5 +47,17 @@ public class UserDaoImpl implements UserDao {
         TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
         query.setParameter("email", email);
         return query.getSingleResult();
+    }
+
+    @Override
+    public boolean isExist(String email) {
+        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+        query.setParameter("email", email);
+        try {
+            query.getSingleResult(); // Пытаемся получить хотя бы один результат
+            return true; // Пользователь существует
+        } catch (NoResultException e) {
+            return false; // Пользователь не найден
+        }
     }
 }
