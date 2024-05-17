@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String userPage(Model model) {
+    public String getUserPage(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
