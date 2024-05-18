@@ -12,6 +12,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin") // Изменили путь для доступа к контроллеру на /admin
@@ -28,7 +29,7 @@ public class AdminController {
     public String listUsers(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-        List<User> users = userService.getAllUsers();
+        Set<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
         model.addAttribute("newUser", new User());
         if (principal != null) {
@@ -63,18 +64,18 @@ public class AdminController {
         if (principal != null) {
             model.addAttribute("principal",(UserDetailsImpl) principal);
         }
-        return "edit-user";
+        return "user-list";
     }
 
     @PostMapping("/edit")
     public String editUser(@ModelAttribute("user") User updatedUser) {
         userService.updateUser(updatedUser.getId(), updatedUser);
-        return "redirect:/admin"; // Изменили перенаправление на /admin
+        return "redirect:/admin";
     }
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("userId") Long userId) {
         userService.deleteUser(userId);
-        return "redirect:/admin"; // Изменили перенаправление на /admin
+        return "redirect:/admin";
     }
 }

@@ -2,11 +2,17 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.security.UserDetailsImpl;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,8 +25,8 @@ public class ApiRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<Set<User>> getAllUsers() {
+        Set<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
@@ -66,4 +72,19 @@ public class ApiRestController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/details")
+    public ResponseEntity<?> getUserDetails(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Map<String, Object> details = new HashMap<>();
+        details.put("username", userDetails.getUsername());
+        details.put("authorities", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+        return ResponseEntity.ok(details);
+    }
+
 }

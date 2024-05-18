@@ -7,6 +7,8 @@ import javax.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import ru.kata.spring.boot_security.demo.model.User;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDaoImpl implements UserDao {
@@ -15,8 +17,8 @@ public class UserDaoImpl implements UserDao {
     private EntityManager entityManager;
 
     @Override
-    public List<User> getAllUsers() {
-        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
+    public Set<User> getAllUsers() {
+        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultStream().collect(Collectors.toSet());
     }
 
     @Override
