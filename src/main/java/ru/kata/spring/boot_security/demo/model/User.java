@@ -1,6 +1,9 @@
 package ru.kata.spring.boot_security.demo.model;
 
 
+import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,7 +30,7 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -83,6 +86,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
 
     public Set<Role> getRoles() {
         return roles;
