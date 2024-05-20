@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
-        return userDao.getUserById(id);
+        User user = userDao.getUserById(id);
+        Hibernate.initialize(user.getRoles());
+        return user;
     }
 
     @Override
@@ -56,6 +59,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
-        return userDao.findByEmail(email);
+        User user = userDao.findByEmail(email);
+        Hibernate.initialize(user.getRoles());
+        return user;
     }
 }

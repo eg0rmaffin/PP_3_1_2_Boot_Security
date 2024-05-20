@@ -10,11 +10,10 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.security.UserDetailsImpl;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import java.security.Principal;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin") // Изменили путь для доступа к контроллеру на /admin
+@RequestMapping("/admin")
 public class AdminController {
 
     private final UserService userService;
@@ -69,12 +68,12 @@ public class AdminController {
     @PostMapping("/edit")
     public String editUser(@ModelAttribute("user") User updatedUser) {
         userService.updateUser(updatedUser.getId(), updatedUser);
-        return "redirect:/admin"; // Изменили перенаправление на /admin
+        return "redirect:/admin";
     }
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("userId") Long userId) {
         userService.deleteUser(userId);
-        return "redirect:/admin"; // Изменили перенаправление на /admin
+        return "redirect:/admin";
     }
 }
