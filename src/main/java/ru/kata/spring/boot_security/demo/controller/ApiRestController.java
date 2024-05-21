@@ -4,12 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.security.UserDetailsImpl;
+import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +23,14 @@ import java.util.stream.Collectors;
 public class ApiRestController {
 
     private final UserService userService;
+    private final RoleService roleService;
 
-    public ApiRestController(UserService userService) {
+    private final PasswordEncoder passwordEncoder;
+
+    public ApiRestController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -40,11 +49,6 @@ public class ApiRestController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        userService.addUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
@@ -86,5 +90,56 @@ public class ApiRestController {
                 .collect(Collectors.toList()));
         return ResponseEntity.ok(details);
     }
+
+    @GetMapping("/roles")
+    public ResponseEntity<Set<String>> getAllRoles() {
+        Set<String> roles = roleService.getAllRolesString();
+        return ResponseEntity.ok(roles);
+    }
+
+
+    @GetMapping("/currentUser")
+    public ResponseEntity<User> getCurrentUser(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User currentUser = userService.findByEmail(userDetails.getUsername()); // метод должен быть реализован в UserService для поиска пользователя по email
+        if (currentUser != null) {
+            return ResponseEntity.ok(currentUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        try {
+            System.out.println("Received user data: " + user); // Логирование полученных данных
+
+            // Проверка, что роли существуют
+            Set<Role> roles = user.getRoles().stream()
+                    .map(role -> roleService.findByName(role.getName()))
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+
+            // Проверка, что роли корректно найдены
+            if (roles.isEmpty()) {
+                System.out.println("Roles not found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+
+            // Шифрование пароля
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            userService.addUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } catch (Exception e) {
+            e.printStackTrace(); // Вывод полного стека ошибки для отладки
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+
 
 }
