@@ -6,11 +6,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.security.UserDetailsImpl;
+import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,10 +22,12 @@ import java.util.Set;
 public class AdminController {
 
     private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping
@@ -42,7 +47,10 @@ public class AdminController {
     public String showAddUserForm(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+        List<Role> allRoles = roleService.getAllRoles();
         model.addAttribute("newUser", new User());
+        model.addAttribute("allRoles", allRoles);
+        System.out.println("Loaded roles: " + allRoles); // Для отладки
         if (principal != null) {
             model.addAttribute("principal", (UserDetailsImpl)principal);
         }
@@ -50,9 +58,14 @@ public class AdminController {
     }
 
     @PostMapping("/add")
-    public String addUser(@ModelAttribute("newUser") User user) {
-        userService.addUser(user);
-        return "user-list";
+    public String addUser(@ModelAttribute("newUser") User user,
+                          @RequestParam(value = "roles", required = false) List<Long> roles) {
+        if (roles != null) {
+            userService.addUser(user, roles);
+        } else {
+            userService.addUser(user, new ArrayList<>()); // Обработка случая без ролей
+        }
+        return "redirect:/admin";
     }
 
     @GetMapping("/edit")
@@ -60,6 +73,7 @@ public class AdminController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
         User user = userService.getUserById(userId);
+        userService.initializeRoles(user);
         model.addAttribute("user", user);
         if (principal != null) {
             model.addAttribute("principal",(UserDetailsImpl) principal);
