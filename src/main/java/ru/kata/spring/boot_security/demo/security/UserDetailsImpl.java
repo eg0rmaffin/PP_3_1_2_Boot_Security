@@ -14,16 +14,28 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;
     }
 
+    public Long getId() {
+        return user.getId();  // Добавленный геттер для ID
+    }
+
+    public String getFirstName() {
+        return user.getFirstName();  // Если есть такое поле и его нужно использовать
+    }
+
+    public String getLastName() {
+        return user.getLastName();  // Если есть такое поле и его нужно использовать
+    }
+
     public String getAuthoritiesString(){
         return user.getRoles().stream()
-                .map(role -> "ROLE_" + role.getName())
+                .map(role -> role.getName())
                 .collect(Collectors.joining(","));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
-                .map(role -> (GrantedAuthority) () -> "ROLE_" + role.getName())
+                .map(role -> (GrantedAuthority) () ->  role.getName())
                 .collect(Collectors.toList());
     }
 

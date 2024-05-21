@@ -73,7 +73,9 @@
                                                 th:data-firstname="${user.firstName}"
                                                 th:data-lastname="${user.lastName}"
                                                 th:data-email="${user.email}"
-                                                data-toggle="modal">Edit</button>
+                                                th:data-roles="${user.roles}"
+                                                data-toggle="modal" data-target="#editUserModal">Edit</button>
+
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-danger delete-user"
@@ -117,13 +119,39 @@
                 </div>
                 <div id="userPanel" class="tab-pane fade">
                     <h1>User Information</h1>
-                    <div>About user information</div>
-                    <!-- User details and other content go here -->
+                    <div class="about user block border h4 p-3 m-0 border-bottom-0">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <th>ID:</th>
+                                <td th:text="${principal.id}"></td>
+                            </tr>
+                            <tr>
+                                <th>First Name:</th>
+                                <td th:text="${principal.firstName}"></td>
+                            </tr>
+                            <tr>
+                                <th>Last Name:</th>
+                                <td th:text="${principal.lastName}"></td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td th:text="${principal.username}"></td>
+                            </tr>
+                            <tr>
+                                <th>Roles:</th>
+                                <td th:text="${principal.authoritiesString}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -148,6 +176,12 @@
                     <div class="form-group">
                         <label for="editUserEmail">Email:</label>
                         <input type="email" class="form-control" id="editUserEmail" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRoles">Roles:</label>
+                        <select multiple class="form-control" id="editRoles" name="roles">
+                            <option th:each="role : ${allRoles}" th:value="${role.id}" th:text="${role.name}"></option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
@@ -187,22 +221,31 @@
 <script>
     $(document).ready(function() {
         $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+            // Тут код для работы с вкладками, если он вам нужен
             e.target // newly activated tab
             e.relatedTarget // previous active tab
-        })
-    });
+        });
 
-    $(document).ready(function() {
         $('.edit-user').on('click', function() {
             var userId = $(this).data('userid');
             var firstName = $(this).data('firstname');
             var lastName = $(this).data('lastname');
             var email = $(this).data('email');
+            var roles = $(this).data('roles').split(',');
 
             $('#editUserId').val(userId);
             $('#editUserFirstName').val(firstName);
             $('#editUserLastName').val(lastName);
             $('#editUserEmail').val(email);
+
+            // Очищаем текущий выбор ролей и устанавливаем согласно пользователя
+            var rolesSelect = $('#editRoles');
+            rolesSelect.empty(); // Очистить предыдущие значения
+            $.each($('#roles option').clone(), function() {
+                var option = $(this);
+                option.prop('selected', roles.includes(option.val()));
+                rolesSelect.append(option); // Добавить опцию в селектор ролей
+            });
 
             $('#editUserModal').modal('show');
         });
@@ -214,5 +257,6 @@
         });
     });
 </script>
+
 </body>
 </html>

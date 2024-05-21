@@ -8,8 +8,10 @@ public interface UserService {
     List<User> getAllUsers();
     User getUserById(Long id);
     void addUser(User user);
+    void addUser(User user, List<Long> roleIds);
     void updateUser(Long id, User updatedUser);
     void deleteUser(Long id);
 
     User findByEmail(String email);
+    void initializeRoles(User user);
 }

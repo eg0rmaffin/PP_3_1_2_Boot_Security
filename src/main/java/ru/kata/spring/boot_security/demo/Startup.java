@@ -29,8 +29,9 @@ public class Startup {
     @Transactional
     public void doSomethingAfterStartup() {
         System.out.println("hello world, I have just started up");
+
         if (!userDao.isExist("admin228@example.com")) {
-            User user = new User("admin228", "adminov", "", passwordEncoder.encode("password"));
+            User user = new User("admin228", "adminov", "admin228@example.com", passwordEncoder.encode("password"));
             User user2 = new User("user228", "userov", "user228@example.com", passwordEncoder.encode("password"));
             Role role_admin = new Role("ROLE_ADMIN");
             Role role_user = new Role("ROLE_USER");
