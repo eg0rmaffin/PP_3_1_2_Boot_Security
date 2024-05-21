@@ -41,6 +41,9 @@ public class UserDaoImpl implements UserDao {
     public void deleteUser(Long id) {
         User user = entityManager.find(User.class, id);
         if (user != null) {
+            // Очищаем связи с ролями перед удалением
+            user.getRoles().clear();
+            entityManager.flush(); // Принудительно синхронизируем состояние контекста persistence с базой данных
             entityManager.remove(user);
         }
     }

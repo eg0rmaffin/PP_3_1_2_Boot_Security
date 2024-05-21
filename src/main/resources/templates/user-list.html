@@ -69,7 +69,7 @@
                                     <td th:text="${user.rolesString}"></td>
                                     <td>
                                         <button type="button" class="btn btn-primary edit-user"
-                                                th:data-userid="${user.id}"
+                                                th:data-id="${user.id}"
                                                 th:data-firstname="${user.firstName}"
                                                 th:data-lastname="${user.lastName}"
                                                 th:data-email="${user.email}"
@@ -164,7 +164,7 @@
             <div class="modal-body">
                 <!-- Форма редактирования -->
                 <form action="/admin/edit" method="post">
-                    <input type="hidden" id="editUserId" name="userId">
+                    <input type="hidden" id="editUserId" name="id">
                     <div class="form-group">
                         <label for="editUserFirstName">First Name:</label>
                         <input type="text" class="form-control" id="editUserFirstName" name="firstName">
@@ -227,11 +227,13 @@
         });
 
         $('.edit-user').on('click', function() {
-            var userId = $(this).data('userid');
+            var userId = $(this).data('id');
+            console.log("Setting userId:", userId); // Отладочное утверждение
             var firstName = $(this).data('firstname');
             var lastName = $(this).data('lastname');
             var email = $(this).data('email');
             var roles = $(this).data('roles').split(',');
+            console.log("Roles data: ", roles);  // Проверьте, что выводится здесь
 
             $('#editUserId').val(userId);
             $('#editUserFirstName').val(firstName);
@@ -240,11 +242,8 @@
 
             // Очищаем текущий выбор ролей и устанавливаем согласно пользователя
             var rolesSelect = $('#editRoles');
-            rolesSelect.empty(); // Очистить предыдущие значения
-            $.each($('#roles option').clone(), function() {
-                var option = $(this);
-                option.prop('selected', roles.includes(option.val()));
-                rolesSelect.append(option); // Добавить опцию в селектор ролей
+            rolesSelect.find('option').each(function() {
+                $(this).prop('selected', roles.includes($(this).text()));
             });
 
             $('#editUserModal').modal('show');

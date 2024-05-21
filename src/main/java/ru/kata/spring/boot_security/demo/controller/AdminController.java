@@ -15,6 +15,8 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -87,7 +89,15 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String editUser(@ModelAttribute("user") User updatedUser) {
+    public String editUser(@ModelAttribute("user") User updatedUser, @RequestParam List<Long> roles) {
+
+        if(roles!=null){
+            Set<Role> roleObjects = roles.stream()
+                    .map(roleId -> roleService.getRoleById(roleId))
+                    .collect(Collectors.toSet());
+
+            updatedUser.setRoles(roleObjects);
+        }
         userService.updateUser(updatedUser.getId(), updatedUser);
         return "redirect:/admin";
     }

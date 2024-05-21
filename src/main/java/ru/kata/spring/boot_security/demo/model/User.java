@@ -88,6 +88,13 @@ public class User {
         return roles;
     }
 
+    public String getRolesFormatted() {
+        return roles.stream()
+                .map(role -> role.getId() + ":" + role.getName())
+                .collect(Collectors.joining(","));
+    }
+
+
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
