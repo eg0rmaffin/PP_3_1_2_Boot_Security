@@ -28,6 +28,11 @@ $(document).ready(function() {
     });
 });
 
+
+
+
+
+
 async function addUser() {
     const newUser = {
         firstName: document.getElementById('firstName').value,
@@ -42,7 +47,7 @@ async function addUser() {
     try {
         const response = await fetch('/api/users', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },  // Изменение здесь
             body: JSON.stringify(newUser)
         });
         if (!response.ok) throw new Error(`Failed to add user: ${response.statusText}`);
@@ -55,30 +60,36 @@ async function addUser() {
     }
 }
 
-
-
-
-function submitEditUser() {
+async function submitEditUser() {
     const userId = document.getElementById('editUserId').value;
     const updatedUser = {
         firstName: document.getElementById('editUserFirstName').value,
         lastName: document.getElementById('editUserLastName').value,
-        email: document.getElementById('editUserEmail').value
+        email: document.getElementById('editUserEmail').value,
+        roles: Array.from(document.getElementById('editUserRoles').selectedOptions).map(option => ({ name: option.value }))
     };
 
-    fetch(`/api/users/${userId}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(updatedUser)
-    }).then(response => {
+    console.log('Updated user data:', JSON.stringify(updatedUser));  // Логирование данных на клиентской стороне
+
+    try {
+        const response = await fetch(`/api/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedUser)
+        });
         if (!response.ok) throw new Error(`Failed to update user: ${response.statusText}`);
+        alert('User updated successfully!');
         $('#editUserModal').modal('hide');
-        loadUsers();  // Refresh the list of users
-    }).catch(error => {
+        loadUsers();  // Обновление списка пользователей
+    } catch (error) {
         console.error('Error updating user:', error);
         alert('Error updating user: ' + error.message);
-    });
+    }
 }
+
+
 
 function deleteUser() {
     const userId = document.getElementById('deleteUserId').value;
@@ -163,7 +174,6 @@ function prepareDelete(userId) {
 }
 
 function editUser(userId) {
-    // Здесь можно загрузить данные пользователя и открыть модальное окно для редактирования
     fetch(`/api/users/${userId}`)
         .then(response => {
             if (!response.ok) throw new Error('Failed to fetch user details');
@@ -174,6 +184,13 @@ function editUser(userId) {
             document.getElementById('editUserFirstName').value = user.firstName;
             document.getElementById('editUserLastName').value = user.lastName;
             document.getElementById('editUserEmail').value = user.email;
+
+            // Установим текущие роли пользователя
+            const editRolesSelect = document.getElementById('editUserRoles');
+            Array.from(editRolesSelect.options).forEach(option => {
+                option.selected = user.roles.some(role => role.name === option.value);
+            });
+
             $('#editUserModal').modal('show');
         })
         .catch(error => {
@@ -206,6 +223,9 @@ function loadRoles() {
         .then(data => {
             const rolesSelect = document.getElementById('roles');
             rolesSelect.innerHTML = data.map(role => `<option value="${role}">${role}</option>`).join('');
+
+            const editRolesSelect = document.getElementById('editUserRoles');
+            editRolesSelect.innerHTML = data.map(role => `<option value="${role}">${role}</option>`).join('');
         })
         .catch(error => console.error('Error fetching roles:', error));
 }

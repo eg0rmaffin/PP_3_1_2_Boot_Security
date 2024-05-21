@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -131,6 +131,12 @@
                     <div class="form-group">
                         <label for="editUserEmail">Email:</label>
                         <input type="email" class="form-control" id="editUserEmail" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserRoles">Roles:</label>
+                        <select multiple class="form-control" id="editUserRoles">
+                            <!-- Здесь будут загружены роли через API -->
+                        </select>
                     </div>
                     <button type="button" class="btn btn-primary" onclick="submitEditUser()">Save Changes</button>
                 </form>

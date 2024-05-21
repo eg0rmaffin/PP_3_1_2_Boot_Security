@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,21 +51,41 @@ public class ApiRestController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        User existingUser = userService.getUserById(id);
-        if (existingUser != null) {
-            existingUser.setFirstName(userDetails.getFirstName());
-            existingUser.setLastName(userDetails.getLastName());
-            existingUser.setEmail(userDetails.getEmail());
-            existingUser.setPassword(userDetails.getPassword());
-            existingUser.setRoles(userDetails.getRoles());
-            userService.updateUser(id, existingUser);
-            return ResponseEntity.ok(existingUser);
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            System.out.println("Received user data for update: " + userDetails); // Логирование полученных данных
+
+            User existingUser = userService.getUserById(id);
+            if (existingUser != null) {
+                existingUser.setFirstName(userDetails.getFirstName());
+                existingUser.setLastName(userDetails.getLastName());
+                existingUser.setEmail(userDetails.getEmail());
+
+                Set<Role> roles = userDetails.getRoles().stream()
+                        .map(role -> roleService.findByName(role.getName()))
+                        .collect(Collectors.toSet());
+
+                System.out.println("Mapped roles: " + roles); // Логирование ролей
+
+                if (roles.isEmpty()) {
+                    System.out.println("Roles not found");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+                }
+
+                existingUser.setRoles(roles);
+                userService.updateUser(id, existingUser);
+                return ResponseEntity.ok(existingUser);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -112,33 +133,38 @@ public class ApiRestController {
         }
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
             System.out.println("Received user data: " + user); // Логирование полученных данных
 
-            // Проверка, что роли существуют
+            // Обработка ролей
             Set<Role> roles = user.getRoles().stream()
-                    .map(role -> roleService.findByName(role.getName()))
+                    .map(role -> {
+                        Role foundRole = roleService.findByName(role.getName());
+                        if (foundRole == null) {
+                            throw new RuntimeException("Role not found: " + role.getName());
+                        }
+                        return foundRole;
+                    })
                     .collect(Collectors.toSet());
-            user.setRoles(roles);
 
-            // Проверка, что роли корректно найдены
             if (roles.isEmpty()) {
                 System.out.println("Roles not found");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
-            // Шифрование пароля
+            user.setRoles(roles);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
             userService.addUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (Exception e) {
-            e.printStackTrace(); // Вывод полного стека ошибки для отладки
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
 
 
 
