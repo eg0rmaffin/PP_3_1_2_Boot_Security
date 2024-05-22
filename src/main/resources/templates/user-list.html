@@ -73,6 +73,7 @@
                                                 th:data-firstname="${user.firstName}"
                                                 th:data-lastname="${user.lastName}"
                                                 th:data-email="${user.email}"
+                                                th:data-password="${user.password}"
                                                 th:data-roles="${user.roles}"
                                                 data-toggle="modal" data-target="#editUserModal">Edit</button>
 
@@ -178,6 +179,10 @@
                         <input type="email" class="form-control" id="editUserEmail" name="email">
                     </div>
                     <div class="form-group">
+                        <label for="editUserPassword">Password:</label>
+                        <input type="password" class="form-control" id="editUserPassword" name="password">
+                    </div>
+                    <div class="form-group">
                         <label for="editRoles">Roles:</label>
                         <select multiple class="form-control" id="editRoles" name="roles">
                             <option th:each="role : ${allRoles}" th:value="${role.id}" th:text="${role.name}"></option>
@@ -232,6 +237,7 @@
             var firstName = $(this).data('firstname');
             var lastName = $(this).data('lastname');
             var email = $(this).data('email');
+            var password = $(this).data('password'); // Add password data
             var roles = $(this).data('roles').split(',');
             console.log("Roles data: ", roles);  // Проверьте, что выводится здесь
 
@@ -239,6 +245,7 @@
             $('#editUserFirstName').val(firstName);
             $('#editUserLastName').val(lastName);
             $('#editUserEmail').val(email);
+            $('#editUserPassword').val(password); // Set password field
 
             // Очищаем текущий выбор ролей и устанавливаем согласно пользователя
             var rolesSelect = $('#editRoles');
