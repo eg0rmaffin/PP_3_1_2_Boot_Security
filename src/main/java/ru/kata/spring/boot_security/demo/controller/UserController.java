@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
+
 @Controller
 public class UserController {
 
@@ -20,13 +22,9 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String getUserPage(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        User user = userService.findByEmail(email);
-        model.addAttribute("user", user);
-
+    public String getUserPage(Model model, Principal principal) {
+        User user = userService.findByEmail(principal.getName());
+        model.addAttribute("principal", user);
         return "user";
     }
 }
