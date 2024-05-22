@@ -100,7 +100,11 @@
                 <div id="userPanel" class="tab-pane fade">
                     <h1>User Information</h1>
                     <div id="currentUserInfo">
-                        <!-- Здесь будет информация о текущем пользователе -->
+                        <p><strong>ID:</strong> <span id="fullUserId"></span></p>
+                        <p><strong>First Name:</strong> <span id="fullUserFirstName"></span></p>
+                        <p><strong>Last Name:</strong> <span id="fullUserLastName"></span></p>
+                        <p><strong>Email:</strong> <span id="fullUserEmail"></span></p>
+                        <p><strong>Roles:</strong> <span id="fullUserRoles"></span></p>
                     </div>
                 </div>
             </div>
@@ -131,6 +135,10 @@
                     <div class="form-group">
                         <label for="editUserEmail">Email:</label>
                         <input type="email" class="form-control" id="editUserEmail" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="editUserPassword">Password:</label>
+                        <input type="password" class="form-control" id="editUserPassword" name="password">
                     </div>
                     <div class="form-group">
                         <label for="editUserRoles">Roles:</label>

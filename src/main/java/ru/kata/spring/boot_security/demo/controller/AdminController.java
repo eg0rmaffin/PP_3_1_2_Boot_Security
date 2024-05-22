@@ -57,16 +57,6 @@ public class AdminController {
         return "user-list";
     }
 
-    @PostMapping("/add")
-    public String addUser(@ModelAttribute("newUser") User user,
-                          @RequestParam(value = "roles", required = false) List<Long> roles) {
-        if (roles != null) {
-            userService.addUser(user, roles);
-        } else {
-            userService.addUser(user, new ArrayList<>()); // Обработка случая без ролей
-        }
-        return "redirect:/admin";
-    }
 
     @GetMapping("/edit")
     public String showEditUserForm(@RequestParam("id") Long userId, Model model) {
@@ -81,15 +71,4 @@ public class AdminController {
         return "user-list";
     }
 
-    @PostMapping("/edit")
-    public String editUser(@ModelAttribute("user") User updatedUser) {
-        userService.updateUser(updatedUser.getId(), updatedUser);
-        return "redirect:/admin";
-    }
-
-    @PostMapping("/delete")
-    public String deleteUser(@RequestParam("userId") Long userId) {
-        userService.deleteUser(userId);
-        return "redirect:/admin";
-    }
 }

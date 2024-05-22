@@ -62,11 +62,14 @@ public class ApiRestController {
                 existingUser.setLastName(userDetails.getLastName());
                 existingUser.setEmail(userDetails.getEmail());
 
+                if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                    existingUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+                }
+
                 Set<Role> roles = userDetails.getRoles().stream()
                         .map(role -> roleService.findByName(role.getName()))
                         .collect(Collectors.toSet());
 
-                System.out.println("Mapped roles: " + roles); // Логирование ролей
 
                 if (roles.isEmpty()) {
                     System.out.println("Roles not found");
@@ -164,6 +167,29 @@ public class ApiRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
+
+    @GetMapping("/currentUserDetails")
+    public ResponseEntity<Map<String, Object>> getCurrentUserDetails(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User currentUser = userService.findByEmail(userDetails.getUsername());
+
+        if (currentUser != null) {
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", currentUser.getId());
+            userMap.put("firstName", currentUser.getFirstName());
+            userMap.put("lastName", currentUser.getLastName());
+            userMap.put("email", currentUser.getEmail());
+            userMap.put("roles", currentUser.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+            return ResponseEntity.ok(userMap);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
 
 
 

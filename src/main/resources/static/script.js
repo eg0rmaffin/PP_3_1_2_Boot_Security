@@ -54,6 +54,7 @@ async function addUser() {
         alert('User added successfully!');
         document.getElementById('addUserForm').reset(); // Очистка формы после успешного добавления
         loadUsers(); // Вызов функции загрузки пользователей для обновления таблицы
+        $('.nav-tabs a[href="#allUsers"]').tab('show');
     } catch (error) {
         console.error('Error adding user:', error);
         alert('Failed to add user: ' + error.message);
@@ -66,6 +67,7 @@ async function submitEditUser() {
         firstName: document.getElementById('editUserFirstName').value,
         lastName: document.getElementById('editUserLastName').value,
         email: document.getElementById('editUserEmail').value,
+        password: document.getElementById('editUserPassword').value,
         roles: Array.from(document.getElementById('editUserRoles').selectedOptions).map(option => ({ name: option.value }))
     };
 
@@ -88,6 +90,7 @@ async function submitEditUser() {
         alert('Error updating user: ' + error.message);
     }
 }
+
 
 
 
@@ -276,6 +279,31 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error fetching user details:', error));
 });
 
+
+function loadFullUserDetails() {
+    fetch('/api/users/currentUserDetails')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch user details');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('fullUserId').textContent = data.id;
+            document.getElementById('fullUserFirstName').textContent = data.firstName;
+            document.getElementById('fullUserLastName').textContent = data.lastName;
+            document.getElementById('fullUserEmail').textContent = data.email;
+            document.getElementById('fullUserRoles').textContent = data.roles.join(', ');
+        })
+        .catch(error => {
+            document.getElementById('fullUserInfo').textContent = 'Error: ' + error.message;
+            console.error('Error loading full user details:', error);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadFullUserDetails(); // Новый метод для загрузки полной информации
+});
 
 
 

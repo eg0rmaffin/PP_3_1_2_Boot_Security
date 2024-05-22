@@ -1,13 +1,8 @@
 package ru.kata.spring.boot_security.demo.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.hibernate.Hibernate;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -16,7 +11,6 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-@JsonDeserialize
 public class User {
 
     @Id
